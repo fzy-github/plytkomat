@@ -13,7 +13,9 @@ const SURFACE_COLORS: Record<string, string> = {
   ceiling: '#c9cdd4',
 }
 
-function surfaceColor(s: Surface): string {
+function surfaceColor(s: Surface, selected: boolean, hovered: boolean): string {
+  if (selected) return '#6f96ea'
+  if (hovered) return '#8fb0ee'
   if (s.source.type === 'element') return '#9fa6b2'
   return SURFACE_COLORS[s.id] ?? '#b7bdc7'
 }
@@ -44,8 +46,14 @@ function RoomOutline({ room }: { room: RoomDimensions }) {
 
 export function SceneRoot() {
   const project = useStore((s) => s.project)
+  const selection = useStore((s) => s.selection)
+  const hover = useStore((s) => s.hover)
+  const select = useStore((s) => s.select)
+  const setHover = useStore((s) => s.setHover)
   const surfaces = useMemo(() => deriveSurfaces(project), [project])
   const room = project.room
+
+  const selectedElementId = selection?.kind === 'element' ? selection.id : null
 
   const target: [number, number, number] = [
     (room.width / 2) * SCALE,
@@ -59,9 +67,37 @@ export function SceneRoot() {
       <ambientLight intensity={0.9} />
       <directionalLight position={[6, 10, 4]} intensity={1.1} />
       <directionalLight position={[-6, 6, -4]} intensity={0.4} />
-      {surfaces.map((s) => (
-        <SurfaceMesh key={s.id} surface={s} color={surfaceColor(s)} />
-      ))}
+      {surfaces.map((s) => {
+        const elementId = s.source.elementId
+        return (
+          <SurfaceMesh
+            key={s.id}
+            surface={s}
+            color={surfaceColor(
+              s,
+              elementId !== undefined && elementId === selectedElementId,
+              elementId !== undefined && elementId === hover,
+            )}
+            onClick={
+              elementId
+                ? (e) => {
+                    e.stopPropagation()
+                    select({ kind: 'element', id: elementId })
+                  }
+                : undefined
+            }
+            onPointerOver={
+              elementId
+                ? (e) => {
+                    e.stopPropagation()
+                    setHover(elementId)
+                  }
+                : undefined
+            }
+            onPointerOut={elementId ? () => setHover(null) : undefined}
+          />
+        )
+      })}
       <RoomOutline room={room} />
       <OrbitControls makeDefault target={target} />
     </Canvas>

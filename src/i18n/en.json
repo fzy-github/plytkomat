@@ -12,7 +12,10 @@
   "palette": {
     "add": "Add element",
     "niche": "Niche",
-    "opening": "Door / window"
+    "opening": "Door / window",
+    "partition": "Partition wall",
+    "tubEnclosure": "Bathtub enclosure",
+    "box": "Built-in box"
   },
   "elements": {
     "title": "Elements",
@@ -32,6 +35,23 @@
     "east": "East",
     "south": "South",
     "west": "West"
+  },
+  "box": {
+    "posX": "Position X",
+    "posZ": "Position Z",
+    "posY": "Above floor (Y)",
+    "sizeX": "Size X",
+    "sizeZ": "Size Z",
+    "sizeY": "Height (Y)",
+    "faces": "Visible faces",
+    "face": {
+      "front": "Front (+Z)",
+      "back": "Back (−Z)",
+      "left": "Left (−X)",
+      "right": "Right (+X)",
+      "top": "Top",
+      "bottom": "Bottom"
+    }
   },
   "common": {
     "delete": "Delete"
