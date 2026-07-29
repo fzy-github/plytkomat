@@ -9,6 +9,8 @@ import type {
   TileType,
 } from '../model/types'
 
+import type { CalcMode } from '../calc/types'
+
 export type Selection = {
   kind: 'element' | 'surface' | 'region' | 'tileType'
   id: string
@@ -19,6 +21,9 @@ interface StoreState {
   selection: Selection
   /** Id elementu pod kursorem w scenie 3D. */
   hover: string | null
+  ui: { calcMode: CalcMode; resultsOpen: boolean }
+  setCalcMode: (calcMode: CalcMode) => void
+  toggleResults: () => void
   setProjectName: (name: string) => void
   setRoom: (patch: Partial<RoomDimensions>) => void
   select: (selection: Selection) => void
@@ -38,6 +43,9 @@ export const useStore = create<StoreState>((set) => ({
   project: defaultProject(),
   selection: null,
   hover: null,
+  ui: { calcMode: 'simple', resultsOpen: true },
+  setCalcMode: (calcMode) => set((s) => ({ ui: { ...s.ui, calcMode } })),
+  toggleResults: () => set((s) => ({ ui: { ...s.ui, resultsOpen: !s.ui.resultsOpen } })),
   setHover: (hover) => set({ hover }),
   setProjectName: (name) => set((s) => ({ project: { ...s.project, name } })),
   setRoom: (patch) =>

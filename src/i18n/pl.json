@@ -96,6 +96,29 @@
     "width": "Szerokość",
     "height": "Wysokość"
   },
+  "results": {
+    "title": "Wyniki",
+    "empty": "Brak regionów do policzenia — okafelkuj powierzchnie w 3D.",
+    "tileType": "Typ płytki",
+    "netArea": "Netto",
+    "tiles": "Sztuki",
+    "tilesWaste": "Z zapasem ({{waste}}%)",
+    "purchase": "Do kupienia",
+    "purchaseShort": "kup",
+    "total": "Razem",
+    "pieces_one": "{{count}} płytka",
+    "pieces_few": "{{count}} płytki",
+    "pieces_many": "{{count}} płytek",
+    "pieces_other": "{{count}} płytki",
+    "estimateNote": "Wyniki są szacunkiem — dokładna liczba zależy od układu, docinania i strat."
+  },
+  "warnings": {
+    "orphanRegion": "Region wskazuje nieistniejącą powierzchnię ({{id}}) i został pominięty.",
+    "regionOutside": "Region leży w całości poza powierzchnią {{surface}}.",
+    "regionClipped": "Region wystaje poza powierzchnię {{surface}} — przycięto go do jej granic.",
+    "regionsOverlap": "Regiony na powierzchni {{surface}} nakładają się — ich pola liczą się podwójnie.",
+    "elementsOverlap": "Elementy „{{a}}\" i „{{b}}\" przenikają się — pola ich ścianek mogą być zawyżone."
+  },
   "common": {
     "delete": "Usuń"
   }

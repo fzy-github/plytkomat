@@ -96,6 +96,27 @@
     "width": "Width",
     "height": "Height"
   },
+  "results": {
+    "title": "Results",
+    "empty": "Nothing to calculate yet — tile some surfaces in 3D.",
+    "tileType": "Tile type",
+    "netArea": "Net area",
+    "tiles": "Pieces",
+    "tilesWaste": "With waste ({{waste}}%)",
+    "purchase": "To buy",
+    "purchaseShort": "buy",
+    "total": "Total",
+    "pieces_one": "{{count}} tile",
+    "pieces_other": "{{count}} tiles",
+    "estimateNote": "Results are an estimate — the exact count depends on layout, cutting and breakage."
+  },
+  "warnings": {
+    "orphanRegion": "A region points to a missing surface ({{id}}) and was skipped.",
+    "regionOutside": "A region lies entirely outside surface {{surface}}.",
+    "regionClipped": "A region extends beyond surface {{surface}} — it was clipped to its bounds.",
+    "regionsOverlap": "Regions on surface {{surface}} overlap — their areas are counted twice.",
+    "elementsOverlap": "Elements “{{a}}” and “{{b}}” intersect — their face areas may be overstated."
+  },
   "common": {
     "delete": "Delete"
   }
