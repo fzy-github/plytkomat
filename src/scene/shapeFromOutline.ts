@@ -6,7 +6,7 @@ import type { Rect } from '../model/types'
 /** Model trzyma cm; scena three.js pracuje w metrach — pokój ma ~2-3 jednostki. */
 export const SCALE = 0.01
 
-function rectShape(r: Rect): THREE.Shape {
+export function rectShape(r: Rect): THREE.Shape {
   const shape = new THREE.Shape()
   shape.moveTo(r.x * SCALE, r.y * SCALE)
   shape.lineTo((r.x + r.w) * SCALE, r.y * SCALE)
