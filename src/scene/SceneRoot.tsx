@@ -6,6 +6,7 @@ import type { Surface } from '../geometry/surfaces'
 import type { RoomDimensions } from '../model/types'
 import { getSurfaces } from '../state/selectors'
 import { useStore } from '../state/store'
+import { GroutGrid } from './GroutGrid'
 import { RegionMesh } from './RegionMesh'
 import { SCALE } from './shapeFromOutline'
 import { SurfaceMesh } from './SurfaceMesh'
@@ -109,23 +110,30 @@ export function SceneRoot() {
         // Defensywny filtr sierot: region bez powierzchni/typu nie renderuje się.
         if (!surface || !tileType) return null
         return (
-          <RegionMesh
-            key={r.id}
-            region={r}
-            surface={surface}
-            tileType={tileType}
-            selected={selection?.kind === 'region' && selection.id === r.id}
-            hovered={hover === r.id}
-            onClick={(e) => {
-              e.stopPropagation()
-              select({ kind: 'region', id: r.id })
-            }}
-            onPointerOver={(e) => {
-              e.stopPropagation()
-              setHover(r.id)
-            }}
-            onPointerOut={() => setHover(null)}
-          />
+          <group key={r.id}>
+            <RegionMesh
+              region={r}
+              surface={surface}
+              tileType={tileType}
+              selected={selection?.kind === 'region' && selection.id === r.id}
+              hovered={hover === r.id}
+              onClick={(e) => {
+                e.stopPropagation()
+                select({ kind: 'region', id: r.id })
+              }}
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHover(r.id)
+              }}
+              onPointerOut={() => setHover(null)}
+            />
+            <GroutGrid
+              region={r}
+              surface={surface}
+              tileType={tileType}
+              grout={project.settings.groutWidth}
+            />
+          </group>
         )
       })}
       <RoomOutline room={room} />
