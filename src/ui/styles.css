@@ -1,0 +1,157 @@
+:root {
+  --panel-bg: #ffffff;
+  --panel-border: #d8dce3;
+  --input-bg: #ffffff;
+  --input-border: #c3c9d3;
+  --accent: #2f6fed;
+  --accent-text: #ffffff;
+  --muted: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --panel-bg: #1d1f26;
+    --panel-border: #33363f;
+    --input-bg: #14151a;
+    --input-border: #3d414c;
+    --accent: #5b8cff;
+    --muted: #9ca3af;
+  }
+}
+
+.app-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.app-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.project-name {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  min-width: 12rem;
+}
+
+.project-name:hover,
+.project-name:focus {
+  border-color: var(--input-border);
+  background: var(--input-bg);
+  outline: none;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.lang-switch {
+  display: flex;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.lang-switch button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.lang-switch button.active {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.side-panel {
+  width: 320px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-border);
+}
+
+.viewport {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-section h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0 0 0.25rem;
+}
+
+.number-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.number-field-label {
+  font-size: 0.9rem;
+}
+
+.number-field-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.number-field input {
+  width: 5.5rem;
+  font: inherit;
+  color: inherit;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  text-align: right;
+}
+
+.number-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.number-field-unit {
+  font-size: 0.8rem;
+  color: var(--muted);
+  width: 1.6rem;
+}
