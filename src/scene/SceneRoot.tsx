@@ -14,6 +14,7 @@ const SURFACE_COLORS: Record<string, string> = {
 }
 
 function surfaceColor(s: Surface): string {
+  if (s.source.type === 'element') return '#9fa6b2'
   return SURFACE_COLORS[s.id] ?? '#b7bdc7'
 }
 

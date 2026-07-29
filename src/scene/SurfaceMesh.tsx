@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import * as THREE from 'three'
 import { cross, dot } from '../geometry/vec'
 import type { Surface } from '../geometry/surfaces'
-import { surfaceMatrix, surfaceShape } from './shapeFromOutline'
+import { surfaceMatrix, surfaceShapes } from './shapeFromOutline'
 
 interface Props {
   surface: Surface
@@ -15,8 +15,8 @@ interface Props {
  * orbitowaniu z zewnątrz bliższe ściany i sufit znikają same.
  */
 export function SurfaceMesh({ surface, color }: Props) {
-  const shape = useMemo(
-    () => surfaceShape(surface.width, surface.height, surface.holes),
+  const shapes = useMemo(
+    () => surfaceShapes(surface.width, surface.height, surface.holes),
     [surface],
   )
   const matrix = useMemo(() => surfaceMatrix(surface), [surface])
@@ -26,7 +26,7 @@ export function SurfaceMesh({ surface, color }: Props) {
     dot(cross(surface.u, surface.v), surface.normal) > 0 ? THREE.FrontSide : THREE.BackSide
   return (
     <mesh matrix={matrix} matrixAutoUpdate={false}>
-      <shapeGeometry args={[shape]} />
+      <shapeGeometry args={[shapes]} />
       <meshStandardMaterial color={color} side={side} />
     </mesh>
   )

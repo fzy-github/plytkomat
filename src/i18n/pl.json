@@ -8,5 +8,32 @@
     "width": "Szerokość",
     "length": "Długość",
     "height": "Wysokość"
+  },
+  "palette": {
+    "add": "Dodaj element",
+    "niche": "Wnęka",
+    "opening": "Drzwi / okno"
+  },
+  "elements": {
+    "title": "Elementy",
+    "empty": "Brak elementów — dodaj je z paska u góry."
+  },
+  "element": {
+    "name": "Nazwa",
+    "wall": "Ściana",
+    "x": "Od lewej",
+    "y": "Od podłogi",
+    "width": "Szerokość",
+    "height": "Wysokość",
+    "depth": "Głębokość"
+  },
+  "walls": {
+    "north": "Północna",
+    "east": "Wschodnia",
+    "south": "Południowa",
+    "west": "Zachodnia"
+  },
+  "common": {
+    "delete": "Usuń"
   }
 }
