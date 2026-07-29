@@ -8,6 +8,7 @@ import { BoxForm } from './forms/BoxForm'
 import { ElementForm } from './forms/ElementForm'
 import { RegionForm } from './forms/RegionForm'
 import { RoomForm } from './forms/RoomForm'
+import { SettingsForm } from './forms/SettingsForm'
 import { TileTypeForm } from './forms/TileTypeForm'
 
 function SelectionDetail() {
@@ -49,6 +50,7 @@ export function SidePanel() {
       <ElementList />
       <TileTypeList />
       <RegionList />
+      <SettingsForm />
     </aside>
   )
 }

@@ -1,6 +1,7 @@
 import type { Surface } from '../geometry/surfaces'
 import { areaMinusHoles, clampToBounds, EPS, intersect } from '../geometry/rect'
-import type { BoxElement, Project, Rect, TileType } from '../model/types'
+import type { BoxElement, Project, Rect, Settings, TileType } from '../model/types'
+import { simulateRegion } from './layout'
 import { simpleTileCount } from './simple'
 import type {
   CalcMode,
@@ -23,10 +24,8 @@ const aabbOverlap = (a: BoxElement, b: BoxElement): boolean =>
 
 /**
  * Główne wejście obliczeń: przycina regiony do powierzchni, odejmuje dziury,
- * liczy sztuki per region i agreguje per typ płytki. Czysty TS — bez React/three.
- *
- * Tryb 'layout' (symulacja układu) dochodzi w M6 — do tego czasu regiony
- * liczone są trybem prostym niezależnie od przekazanego mode.
+ * liczy sztuki per region (tryb prosty albo symulacja układu) i agreguje
+ * per typ płytki. Czysty TS — bez React/three.
  */
 export function calculateProject(
   project: Project,
@@ -86,8 +85,7 @@ export function calculateProject(
     list.push({ name: tileType.name, rect: clipped })
     clippedBySurface.set(surface.id, list)
 
-    const netCm2 = areaMinusHoles(clipped, surface.holes)
-    results.push(regionResult(region.id, tileType, netCm2, waste, mode))
+    results.push(regionResult(region.id, tileType, surface, clipped, project.settings, mode))
   }
 
   for (const [surfaceId, rects] of clippedBySurface) {
@@ -106,17 +104,40 @@ export function calculateProject(
 function regionResult(
   regionId: string,
   tileType: TileType,
-  netCm2: number,
-  wastePercent: number,
+  surface: Surface,
+  clipped: Rect,
+  settings: Settings,
   mode: CalcMode,
 ): RegionCalcResult {
-  // M6 podmieni gałąź 'layout' na symulację siatki.
+  const netCm2 = areaMinusHoles(clipped, surface.holes)
+  const netAreaM2 = netCm2 / 10_000
+
+  if (mode === 'layout') {
+    // Dziury przesunięte do układu współrzędnych przyciętego regionu.
+    const holes = surface.holes.map((h) => ({
+      x: h.x - clipped.x,
+      y: h.y - clipped.y,
+      w: h.w,
+      h: h.h,
+    }))
+    const layout = simulateRegion({
+      width: clipped.w,
+      height: clipped.h,
+      holes,
+      tile: { width: tileType.width, height: tileType.height, rotatable: tileType.rotatable },
+      grout: settings.groutWidth,
+      minOffcut: settings.minOffcut,
+      pattern: 'grid',
+    })
+    return { regionId, tileTypeId: tileType.id, netAreaM2, mode, ...layout }
+  }
+
   return {
     regionId,
     tileTypeId: tileType.id,
-    netAreaM2: netCm2 / 10_000,
+    netAreaM2,
     mode,
-    totalTiles: simpleTileCount(netCm2, tileType, wastePercent),
+    totalTiles: simpleTileCount(netCm2, tileType, settings.wastePercent),
   }
 }
 
