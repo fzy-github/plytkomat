@@ -1,0 +1,12 @@
+{
+  "app": {
+    "title": "Płytkomat",
+    "projectName": "Project name"
+  },
+  "room": {
+    "title": "Room",
+    "width": "Width",
+    "length": "Length",
+    "height": "Height"
+  }
+}

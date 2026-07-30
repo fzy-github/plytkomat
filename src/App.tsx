@@ -1,10 +1,8 @@
+import { Layout } from './ui/Layout'
+import './ui/styles.css'
+
 function App() {
-  return (
-    <main className="placeholder">
-      <h1>Płytkomat</h1>
-      <p>Estymator płytek łazienkowych z podglądem 3D — w budowie (M0).</p>
-    </main>
-  )
+  return <Layout />
 }
 
 export default App
