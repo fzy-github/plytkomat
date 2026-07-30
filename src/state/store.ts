@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { defaultProject } from '../model/defaults'
+import { loadStoredProject } from './persistence'
 import type {
   Id,
   Project,
@@ -39,10 +40,12 @@ interface StoreState {
   addRegion: (region: TileRegion) => void
   updateRegion: (id: Id, patch: Partial<TileRegion>) => void
   removeRegion: (id: Id) => void
+  importProject: (project: Project) => void
+  resetProject: () => void
 }
 
 export const useStore = create<StoreState>((set) => ({
-  project: defaultProject(),
+  project: loadStoredProject() ?? defaultProject(),
   selection: null,
   hover: null,
   ui: { calcMode: 'simple', resultsOpen: true },
@@ -122,4 +125,6 @@ export const useStore = create<StoreState>((set) => ({
       selection:
         s.selection?.kind === 'region' && s.selection.id === id ? null : s.selection,
     })),
+  importProject: (project) => set({ project, selection: null, hover: null }),
+  resetProject: () => set({ project: defaultProject(), selection: null, hover: null }),
 }))

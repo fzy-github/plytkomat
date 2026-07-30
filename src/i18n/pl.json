@@ -125,6 +125,13 @@
     "regionsOverlap": "Regiony na powierzchni {{surface}} nakładają się — ich pola liczą się podwójnie.",
     "elementsOverlap": "Elementy „{{a}}\" i „{{b}}\" przenikają się — pola ich ścianek mogą być zawyżone."
   },
+  "io": {
+    "export": "Eksport",
+    "import": "Import",
+    "reset": "Nowy",
+    "resetConfirm": "Zacząć nowy projekt? Bieżący zostanie nadpisany (zrób wcześniej eksport, jeśli chcesz go zachować).",
+    "importError": "Nie udało się wczytać pliku — to nie jest poprawny projekt Płytkomatu."
+  },
   "settings": {
     "title": "Ustawienia obliczeń",
     "grout": "Fuga",

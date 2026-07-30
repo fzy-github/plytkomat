@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   createBox,
@@ -6,14 +7,28 @@ import {
   createPartition,
   createTubEnclosure,
 } from '../model/defaults'
+import { exportProjectFile, importProjectFile } from '../state/persistence'
 import { useStore } from '../state/store'
 
 export function Toolbar() {
   const { t, i18n } = useTranslation()
+  const project = useStore((s) => s.project)
   const name = useStore((s) => s.project.name)
   const setProjectName = useStore((s) => s.setProjectName)
   const addElement = useStore((s) => s.addElement)
+  const importProject = useStore((s) => s.importProject)
+  const resetProject = useStore((s) => s.resetProject)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const lang = i18n.resolvedLanguage
+
+  const handleImportFile = async (file: File | undefined) => {
+    if (!file) return
+    try {
+      importProject(await importProjectFile(file))
+    } catch {
+      window.alert(t('io.importError'))
+    }
+  }
 
   const handleAdd = (kind: string) => {
     if (kind === 'niche') addElement(createNiche(t('palette.niche')))
@@ -48,6 +63,31 @@ export function Toolbar() {
         <option value="opening">{t('palette.opening')}</option>
       </select>
       <span className="toolbar-spacer" />
+      <button type="button" className="action-button" onClick={() => exportProjectFile(project)}>
+        {t('io.export')}
+      </button>
+      <button type="button" className="action-button" onClick={() => fileInputRef.current?.click()}>
+        {t('io.import')}
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json,.json"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          void handleImportFile(e.target.files?.[0])
+          e.target.value = ''
+        }}
+      />
+      <button
+        type="button"
+        className="action-button"
+        onClick={() => {
+          if (window.confirm(t('io.resetConfirm'))) resetProject()
+        }}
+      >
+        {t('io.reset')}
+      </button>
       <div className="lang-switch" role="group" aria-label="Language">
         <button
           type="button"

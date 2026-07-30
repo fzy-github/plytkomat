@@ -123,6 +123,13 @@
     "regionsOverlap": "Regions on surface {{surface}} overlap — their areas are counted twice.",
     "elementsOverlap": "Elements “{{a}}” and “{{b}}” intersect — their face areas may be overstated."
   },
+  "io": {
+    "export": "Export",
+    "import": "Import",
+    "reset": "New",
+    "resetConfirm": "Start a new project? The current one will be overwritten (export it first if you want to keep it).",
+    "importError": "Could not load the file — it is not a valid Płytkomat project."
+  },
   "settings": {
     "title": "Calculation settings",
     "grout": "Grout",
