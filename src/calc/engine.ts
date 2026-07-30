@@ -1,7 +1,8 @@
 import type { Surface } from '../geometry/surfaces'
 import { areaMinusHoles, clampToBounds, EPS, intersect } from '../geometry/rect'
-import type { BoxElement, Project, Rect, Settings, TileType } from '../model/types'
+import type { BoxElement, Project, Rect, Settings, TileRegion, TileType } from '../model/types'
 import { simulateRegion } from './layout'
+import { simulatePanelRegion } from './panels'
 import { simpleTileCount } from './simple'
 import type {
   CalcMode,
@@ -85,7 +86,7 @@ export function calculateProject(
     list.push({ name: tileType.name, rect: clipped })
     clippedBySurface.set(surface.id, list)
 
-    results.push(regionResult(region.id, tileType, surface, clipped, project.settings, mode))
+    results.push(regionResult(region, tileType, surface, clipped, project.settings, mode, warnings))
   }
 
   for (const [surfaceId, rects] of clippedBySurface) {
@@ -102,43 +103,80 @@ export function calculateProject(
 }
 
 function regionResult(
-  regionId: string,
+  region: TileRegion,
   tileType: TileType,
   surface: Surface,
   clipped: Rect,
   settings: Settings,
   mode: CalcMode,
+  warnings: CalcWarning[],
 ): RegionCalcResult {
+  const regionId = region.id
   const netCm2 = areaMinusHoles(clipped, surface.holes)
   const netAreaM2 = netCm2 / 10_000
 
-  if (mode === 'layout') {
-    // Dziury przesunięte do układu współrzędnych przyciętego regionu.
-    const holes = surface.holes.map((h) => ({
-      x: h.x - clipped.x,
-      y: h.y - clipped.y,
-      w: h.w,
-      h: h.h,
-    }))
-    const layout = simulateRegion({
-      width: clipped.w,
-      height: clipped.h,
-      holes,
-      tile: { width: tileType.width, height: tileType.height, rotatable: tileType.rotatable },
-      grout: settings.groutWidth,
-      minOffcut: settings.minOffcut,
-      pattern: 'grid',
-    })
-    return { regionId, tileTypeId: tileType.id, netAreaM2, mode, ...layout }
+  if (mode !== 'layout') {
+    // Tryb prosty: identyczna formuła powierzchniowa dla płytek i paneli.
+    return {
+      regionId,
+      tileTypeId: tileType.id,
+      netAreaM2,
+      mode,
+      totalTiles: simpleTileCount(netCm2, tileType, settings.wastePercent),
+    }
   }
 
-  return {
-    regionId,
-    tileTypeId: tileType.id,
-    netAreaM2,
-    mode,
-    totalTiles: simpleTileCount(netCm2, tileType, settings.wastePercent),
+  // Dziury przesunięte do układu współrzędnych przyciętego regionu.
+  const holes = surface.holes.map((h) => ({
+    x: h.x - clipped.x,
+    y: h.y - clipped.y,
+    w: h.w,
+    h: h.h,
+  }))
+
+  if (tileType.kind === 'panel') {
+    // Kierunek 'v' = deski wzdłuż osi v powierzchni: transpozycja wejścia
+    // (odbicie względem przekątnej — izometria, zachowuje segmentację).
+    const transposed = (region.direction ?? 'u') === 'v'
+    const input = transposed
+      ? {
+          width: clipped.h,
+          height: clipped.w,
+          holes: holes.map((h) => ({ x: h.y, y: h.x, w: h.h, h: h.w })),
+        }
+      : { width: clipped.w, height: clipped.h, holes }
+    const layout = simulatePanelRegion({
+      ...input,
+      panel: { length: tileType.width, width: tileType.height },
+      minStart: settings.panelMinStart,
+      minStagger: settings.panelMinStagger,
+    })
+    if (layout.staggerFallbackRows > 0) {
+      warnings.push({ key: 'warnings.panelStagger', params: { surface: surface.id } })
+    }
+    return {
+      regionId,
+      tileTypeId: tileType.id,
+      netAreaM2,
+      mode,
+      fullTiles: layout.fullPlanks,
+      cutCells: layout.cutPieces,
+      cutsServedByOffcuts: layout.cutsServedByCarry,
+      newTilesForCuts: layout.newPlanksForCuts,
+      totalTiles: layout.totalPlanks,
+    }
   }
+
+  const layout = simulateRegion({
+    width: clipped.w,
+    height: clipped.h,
+    holes,
+    tile: { width: tileType.width, height: tileType.height, rotatable: tileType.rotatable },
+    grout: settings.groutWidth,
+    minOffcut: settings.minOffcut,
+    pattern: 'grid',
+  })
+  return { regionId, tileTypeId: tileType.id, netAreaM2, mode, ...layout }
 }
 
 function summarize(
@@ -176,6 +214,12 @@ function summarize(
       // Tryb prosty: zapas wliczony już w totalTiles.
       entry.tilesWithWaste = entry.totalTiles
       entry.purchaseAreaM2 = entry.netAreaM2 * (1 + wastePercent / 100)
+    }
+    // Paczki: sztuki z zapasem zaokrąglone w górę do pełnych paczek — zakup
+    // odpowiada temu, co realnie ląduje w koszyku (zawsze ≥ wartości sztukowej).
+    if (tt.piecesPerPackage && tt.piecesPerPackage >= 1) {
+      entry.packages = Math.ceil(entry.tilesWithWaste / tt.piecesPerPackage)
+      entry.purchaseAreaM2 = entry.packages * tt.piecesPerPackage * tileAreaM2
     }
   }
   return [...byType.values()]

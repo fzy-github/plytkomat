@@ -50,7 +50,10 @@ export function ResultsPanel() {
     </button>
   )
 
-  const columns = layout ? 7 : 5
+  const hasPackages = perTileType.some((r) => r.packages !== undefined)
+  // Jawna arytmetyka kolumn (wypełnione komórki podwiersza: etykieta, netto,
+  // [pełne, docinki,] sztuki) — naprawia wcześniejszy off-by-one w colSpan.
+  const columns = (layout ? 7 : 5) + (hasPackages ? 1 : 0)
 
   return (
     <section className={`results-panel ${ui.resultsOpen ? 'open' : ''}`}>
@@ -88,6 +91,7 @@ export function ResultsPanel() {
                   {layout && <th>{t('results.cuts')}</th>}
                   <th>{t('results.tiles')}</th>
                   <th>{t('results.tilesWaste', { waste: project.settings.wastePercent })}</th>
+                  {hasPackages && <th>{t('results.packages')}</th>}
                   <th>{t('results.purchase')}</th>
                 </tr>
               </thead>
@@ -118,6 +122,7 @@ export function ResultsPanel() {
                       regionById={regionById}
                       surfaceById={surfaceById}
                       columns={columns}
+                      hasPackages={hasPackages}
                     />
                   )
                 })}
@@ -129,6 +134,7 @@ export function ResultsPanel() {
                     {layout && <td />}
                     <td />
                     <td />
+                    {hasPackages && <td />}
                     <td>{fmt(totalPurchase)} m²</td>
                   </tr>
                 )}
@@ -162,6 +168,7 @@ interface TypeRowsProps {
   regionById: Map<string, TileRegion>
   surfaceById: Map<string, Surface>
   columns: number
+  hasPackages: boolean
 }
 
 function TypeRows({
@@ -177,9 +184,11 @@ function TypeRows({
   regionById,
   surfaceById,
   columns,
+  hasPackages,
 }: TypeRowsProps) {
   const { t } = useTranslation()
   const project = useStore((s) => s.project)
+  const piecesKey = tt.kind === 'panel' ? 'results.planks' : 'results.pieces'
   return (
     <>
       <tr className="results-row" onClick={toggle}>
@@ -201,8 +210,15 @@ function TypeRows({
             )}
           </td>
         )}
-        <td>{t('results.pieces', { count: row.totalTiles })}</td>
-        <td>{t('results.pieces', { count: row.tilesWithWaste })}</td>
+        <td>{t(piecesKey, { count: row.totalTiles })}</td>
+        <td>{t(piecesKey, { count: row.tilesWithWaste })}</td>
+        {hasPackages && (
+          <td>
+            {row.packages !== undefined
+              ? t('results.packagesCount', { count: row.packages })
+              : '—'}
+          </td>
+        )}
         <td>{fmt(row.purchaseAreaM2)} m²</td>
       </tr>
       {isOpen &&
@@ -225,8 +241,8 @@ function TypeRows({
                   )}
                 </td>
               )}
-              <td>{t('results.pieces', { count: r.totalTiles })}</td>
-              <td colSpan={columns - (layout ? 6 : 4)} />
+              <td>{t(piecesKey, { count: r.totalTiles })}</td>
+              <td colSpan={columns - (layout ? 5 : 3)} />
             </tr>
           )
         })}

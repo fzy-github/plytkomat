@@ -64,15 +64,21 @@ export interface OpeningElement {
 
 export type RoomElement = BoxElement | NicheElement | OpeningElement
 
+/** Typ materiału: płytka (siatka + fuga) albo panel podłogowy (rzędy z przewiązką). */
 export interface TileType {
   id: Id
   name: string
+  kind: 'tile' | 'panel'
+  /** Płytka: szerokość. Panel: DŁUGOŚĆ deski (wzdłuż kierunku układania). */
   width: number
+  /** Płytka: wysokość. Panel: SZEROKOŚĆ deski (wysokość rzędu). */
   height: number
   /** Kolor wizualizacji regionów w 3D. */
   color: string
-  /** false dla płytek kierunkowych — blokuje rotację 90° przy ponownym użyciu ścinek. */
+  /** Tylko płytki: false dla kierunkowych — blokuje rotację 90° ścinek. Panele ignorują. */
   rotatable: boolean
+  /** Sztuk w paczce; undefined = sprzedaż na sztuki. Dotyczy obu rodzajów. */
+  piecesPerPackage?: number
 }
 
 /** Deterministyczny identyfikator powierzchni, np. 'wall:north', 'floor', 'niche:<id>:back'. */
@@ -85,19 +91,25 @@ export interface TileRegion {
   rect: Rect
   tileTypeId: Id
   name?: string
+  /** Kierunek desek (tylko panele): 'u' = wzdłuż osi u powierzchni (domyślne), 'v' = wzdłuż v. */
+  direction?: 'u' | 'v'
 }
 
 export interface Settings {
-  /** Szerokość fugi w cm. */
+  /** Szerokość fugi w cm (tylko płytki; panele click nie mają fugi). */
   groutWidth: number
   /** Zapas w %: w trybie prostym wlicza docinki, w trybie układu — rezerwa na stłuczenia. */
   wastePercent: number
-  /** Najmniejszy wymiar ścinki (cm), która nadaje się do ponownego użycia. */
+  /** Najmniejszy wymiar ścinki płytki (cm) nadającej się do ponownego użycia. */
   minOffcut: number
+  /** Panele: minimalna długość kawałka rozpoczynającego rząd/segment (cm). */
+  panelMinStart: number
+  /** Panele: minimalne przesunięcie styków między sąsiednimi rzędami (cm). */
+  panelMinStagger: number
 }
 
 export interface Project {
-  schemaVersion: 1
+  schemaVersion: 2
   name: string
   room: RoomDimensions
   elements: RoomElement[]

@@ -24,8 +24,10 @@ export interface TileTypeSummary {
   totalTiles: number
   /** Sztuki z zapasem: prosty = totalTiles; układ = ceil(totalTiles·(1+zapas)). */
   tilesWithWaste: number
-  /** Sugerowany zakup w m². */
+  /** Sugerowany zakup w m²; przy paczkach — wynikający z pełnych paczek. */
   purchaseAreaM2: number
+  /** ceil(tilesWithWaste / piecesPerPackage); tylko gdy typ ma paczki. */
+  packages?: number
 }
 
 /** Ostrzeżenie jako klucz i18n + parametry — UI tłumaczy. */

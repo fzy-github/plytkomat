@@ -35,6 +35,22 @@ export function SettingsForm() {
         step={1}
         onChange={(minOffcut) => updateSettings({ minOffcut })}
       />
+      <NumberField
+        label={t('settings.panelMinStart')}
+        value={settings.panelMinStart}
+        min={0}
+        max={100}
+        step={1}
+        onChange={(panelMinStart) => updateSettings({ panelMinStart })}
+      />
+      <NumberField
+        label={t('settings.panelMinStagger')}
+        value={settings.panelMinStagger}
+        min={0}
+        max={100}
+        step={1}
+        onChange={(panelMinStagger) => updateSettings({ panelMinStagger })}
+      />
     </section>
   )
 }

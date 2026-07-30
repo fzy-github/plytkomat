@@ -16,29 +16,39 @@ interface Props {
 const GRID_OFFSET = 0.35
 
 /**
- * Podpowiedź skali płytek: linie siatki co (płytka + fuga) wewnątrz regionu.
- * Czysto wizualna — nie uwzględnia dziur; źródłem prawdy jest symulacja układu.
+ * Podpowiedź skali materiału. Płytki: siatka co (płytka + fuga). Panele:
+ * wyłącznie linie rzędów co szerokość deski (styki czołowe są przewiązane,
+ * więc celowo pominięte), oś zależna od kierunku regionu, bez fugi.
+ * Czysto wizualna — nie uwzględnia dziur; źródłem prawdy jest symulacja.
  */
 export function GroutGrid({ region, surface, tileType, grout }: Props) {
   const geometry = useMemo(() => {
     const clipped = clampToBounds(region.rect, surface.width, surface.height)
     if (!clipped) return null
-    const pitchX = tileType.width + grout
-    const pitchY = tileType.height + grout
     const pts: number[] = []
-    for (let i = 1; i * pitchX < clipped.w - EPS; i++) {
-      const x = (clipped.x + i * pitchX) * SCALE
-      pts.push(x, clipped.y * SCALE, 0, x, (clipped.y + clipped.h) * SCALE, 0)
-    }
-    for (let j = 1; j * pitchY < clipped.h - EPS; j++) {
-      const y = (clipped.y + j * pitchY) * SCALE
-      pts.push(clipped.x * SCALE, y, 0, (clipped.x + clipped.w) * SCALE, y, 0)
+    const vLine = (x: number) =>
+      pts.push(x * SCALE, clipped.y * SCALE, 0, x * SCALE, (clipped.y + clipped.h) * SCALE, 0)
+    const hLine = (y: number) =>
+      pts.push(clipped.x * SCALE, y * SCALE, 0, (clipped.x + clipped.w) * SCALE, y * SCALE, 0)
+
+    if (tileType.kind === 'panel') {
+      const pitch = tileType.height
+      if ((region.direction ?? 'u') === 'u') {
+        for (let j = 1; j * pitch < clipped.h - EPS; j++) hLine(clipped.y + j * pitch)
+      } else {
+        for (let i = 1; i * pitch < clipped.w - EPS; i++) vLine(clipped.x + i * pitch)
+      }
+    } else {
+      const pitchX = tileType.width + grout
+      const pitchY = tileType.height + grout
+      for (let i = 1; i * pitchX < clipped.w - EPS; i++) vLine(clipped.x + i * pitchX)
+      for (let j = 1; j * pitchY < clipped.h - EPS; j++) hLine(clipped.y + j * pitchY)
     }
     if (pts.length === 0) return null
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3))
     return geo
-  }, [region.rect, surface, tileType, grout])
+  }, [region.rect, region.direction, surface, tileType, grout])
 
   useEffect(() => () => geometry?.dispose(), [geometry])
 
