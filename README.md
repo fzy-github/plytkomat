@@ -7,11 +7,13 @@ Aplikacja webowa do szacowania ilości płytek (m² + sztuki) potrzebnych do rem
 ## Funkcje
 
 - Parametryczne modelowanie łazienki: prostokątne pomieszczenie + paleta elementów (ścianki działowe, wnęki, wanna z zabudową, zabudowy, drzwi/okna).
-- Zaznaczanie powierzchni do okafelkowania (całe ściany/podłoga lub prostokątne regiony) przez kliknięcie w 3D i przypisywanie im typów płytek.
-- Kolorowa wizualizacja 3D regionów z obracaniem kamery (orbit) i siatką fug w skali płytki.
+- Zaznaczanie powierzchni do okafelkowania (całe ściany/podłoga lub prostokątne regiony) przez kliknięcie w 3D i przypisywanie im materiałów.
+- Dwa rodzaje materiału: **płytki** i **panele podłogowe** (deski; kierunek układania per region, panele mogą iść też na ściany).
+- Kolorowa wizualizacja 3D regionów z obracaniem kamery (orbit) i siatką w skali materiału (fugi płytek / rzędy paneli).
 - Dwa tryby obliczeń:
   - **Prosty** — powierzchnia netto + % zapasu,
-  - **Układ** — symulacja siatki z fugą, docinkami i ponownym użyciem ścinek (zachłanny first-fit z rotacją 90°); breakdown per region.
+  - **Układ** — płytki: symulacja siatki z fugą, docinkami i ponownym użyciem ścinek (zachłanny first-fit z rotacją 90°); panele: symulacja rzędów z przenoszeniem ścinki końcowej, minimalnym kawałkiem startowym i przewiązką styków; breakdown per region.
+- Opcjonalne paczki („sztuk w paczce") — wyniki zaokrąglane w górę do pełnych paczek.
 - Autozapis do localStorage + eksport/import projektu jako JSON (walidacja zod).
 - Interfejs PL/EN (poprawne polskie formy liczby mnogiej).
 
@@ -56,5 +58,6 @@ Bez `wrangler.toml` i bez `_redirects` (brak client-side routera; przy jego doda
 - Kontakt box↔box nie jest rozwiązywany geometrycznie (bez CSG) — przenikające się elementy dają ostrzeżenie.
 - Układ płytek: tylko prosta siatka od narożnika (układy z przesunięciem — punkt rozszerzenia `pattern`).
 - Docinki liczone po prostokątnym bounding boxie widocznej części (L-kształty lekko pesymistycznie); ościeża drzwi poza zakresem.
+- Panele: uproszczona przewiązka (jedna faza styków na rząd), jeden slot przenoszonej ścinki, rząd dzielą tylko dziury pełnej wysokości; dylatacja poza zakresem (zmniejsz region ~1 cm z każdej strony).
 - Wnęki i otwory tylko na 4 ścianach pomieszczenia (nie na ściankach działowych).
 - Bez undo (ścieżka: `zundo` na immutable slice) i bez zaokrąglania do pełnych opakowań.

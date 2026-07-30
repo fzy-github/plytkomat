@@ -12,6 +12,8 @@ export const DEFAULT_SETTINGS: Settings = {
   groutWidth: 0.2,
   wastePercent: 10,
   minOffcut: 5,
+  panelMinStart: 30,
+  panelMinStagger: 30,
 }
 
 /** Domyślne wymiary z palety — nazwę (zależną od języka) podaje wołający. */
@@ -76,6 +78,7 @@ export const TILE_COLORS = ['#e07a5f', '#3d9970', '#5b8cff', '#f2cc8f', '#9b5de5
 export function createTileType(name: string, index: number): TileType {
   return {
     id: newId(),
+    kind: 'tile',
     name,
     width: 60,
     height: 30,
@@ -84,9 +87,23 @@ export function createTileType(name: string, index: number): TileType {
   }
 }
 
+/** Typowy panel: 138×19.3 cm (~0.266 m²/deska), 8 szt./paczka ≈ 2.13 m². */
+export function createPanelType(name: string, index: number): TileType {
+  return {
+    id: newId(),
+    kind: 'panel',
+    name,
+    width: 138,
+    height: 19.3,
+    color: TILE_COLORS[index % TILE_COLORS.length],
+    rotatable: false,
+    piecesPerPackage: 8,
+  }
+}
+
 export function defaultProject(): Project {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: 'Łazienka',
     room: { width: 200, length: 250, height: 250 },
     elements: [],

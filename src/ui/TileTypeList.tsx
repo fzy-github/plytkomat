@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { createTileType } from '../model/defaults'
+import { createPanelType, createTileType } from '../model/defaults'
 import { useStore } from '../state/store'
 
 export function TileTypeList() {
@@ -29,6 +29,7 @@ export function TileTypeList() {
                   {tt.name}
                 </span>
                 <span className="element-kind">
+                  {t(tt.kind === 'panel' ? 'tiles.kindPanel' : 'tiles.kindTile')} ·{' '}
                   {tt.width}×{tt.height} cm
                 </span>
               </button>
@@ -53,6 +54,17 @@ export function TileTypeList() {
         }
       >
         + {t('tiles.add')}
+      </button>
+      <button
+        type="button"
+        className="action-button"
+        onClick={() =>
+          addTileType(
+            createPanelType(`${t('tiles.defaultPanel')} ${tileTypes.length + 1}`, tileTypes.length),
+          )
+        }
+      >
+        + {t('tiles.addPanel')}
       </button>
     </section>
   )

@@ -54,13 +54,22 @@
     }
   },
   "tiles": {
-    "title": "Tile types",
-    "edit": "Tile type",
+    "title": "Materials",
+    "edit": "Material",
     "add": "Add tile type",
+    "addPanel": "Add panel",
     "default": "Tile",
-    "empty": "No tile types yet.",
+    "defaultPanel": "Panel",
+    "empty": "No materials yet.",
+    "kind": "Kind",
+    "kindTile": "Tile",
+    "kindPanel": "Panel",
     "width": "Tile width",
     "height": "Tile height",
+    "panelLength": "Plank length",
+    "panelWidth": "Plank width",
+    "piecesPerPackage": "Pieces per package (0 = none)",
+    "piecesUnit": "pcs",
     "color": "Color",
     "rotatable": "Rotatable (90°)"
   },
@@ -90,7 +99,10 @@
   },
   "region": {
     "title": "Tile region",
-    "tileType": "Tile type",
+    "tileType": "Material",
+    "direction": "Plank direction",
+    "dirU": "Horizontal (U axis)",
+    "dirV": "Vertical (V axis)",
     "x": "From left",
     "y": "From bottom",
     "width": "Width",
@@ -114,6 +126,11 @@
     "total": "Total",
     "pieces_one": "{{count}} tile",
     "pieces_other": "{{count}} tiles",
+    "planks_one": "{{count}} plank",
+    "planks_other": "{{count}} planks",
+    "packages": "Packages",
+    "packagesCount_one": "{{count}} package",
+    "packagesCount_other": "{{count}} packages",
     "estimateNote": "Results are an estimate — the exact count depends on layout, cutting and breakage."
   },
   "warnings": {
@@ -121,7 +138,8 @@
     "regionOutside": "A region lies entirely outside surface {{surface}}.",
     "regionClipped": "A region extends beyond surface {{surface}} — it was clipped to its bounds.",
     "regionsOverlap": "Regions on surface {{surface}} overlap — their areas are counted twice.",
-    "elementsOverlap": "Elements “{{a}}” and “{{b}}” intersect — their face areas may be overstated."
+    "elementsOverlap": "Elements “{{a}}” and “{{b}}” intersect — their face areas may be overstated.",
+    "panelStagger": "Could not satisfy the min. joint stagger on surface {{surface}} — a fallback starting piece was used."
   },
   "io": {
     "export": "Export",
@@ -134,7 +152,9 @@
     "title": "Calculation settings",
     "grout": "Grout",
     "waste": "Waste",
-    "minOffcut": "Min. offcut"
+    "minOffcut": "Min. offcut",
+    "panelMinStart": "Min. starting piece",
+    "panelMinStagger": "Min. joint stagger"
   },
   "common": {
     "delete": "Delete"

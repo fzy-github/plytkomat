@@ -31,6 +31,20 @@ export function RegionForm({ region, surface }: { region: TileRegion; surface: S
           ))}
         </select>
       </label>
+      {project.tileTypes.find((tt) => tt.id === region.tileTypeId)?.kind === 'panel' && (
+        <label className="field">
+          <span>{t('region.direction')}</span>
+          <select
+            value={region.direction ?? 'u'}
+            onChange={(e) =>
+              updateRegion(region.id, { direction: e.target.value as 'u' | 'v' })
+            }
+          >
+            <option value="u">{t('region.dirU')}</option>
+            <option value="v">{t('region.dirV')}</option>
+          </select>
+        </label>
+      )}
       <NumberField
         label={t('region.x')}
         value={region.rect.x}

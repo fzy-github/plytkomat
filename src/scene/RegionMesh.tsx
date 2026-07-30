@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { Edges } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
@@ -37,35 +37,36 @@ export function RegionMesh({
   onPointerOver,
   onPointerOut,
 }: Props) {
-  const shapes = useMemo(() => {
+  // Macierz wypiekana w geometrię — jak w SurfaceMesh: raycast three.js działa
+  // w przestrzeni lokalnej i lustrzana baza (podłoga) psułaby picking regionów.
+  const geometry = useMemo(() => {
     const clipped = clampToBounds(region.rect, surface.width, surface.height)
-    if (!clipped) return []
-    return subtractToCells(clipped, surface.holes).uncovered.map(rectShape)
-  }, [region.rect, surface])
-
-  const matrix = useMemo(() => {
+    if (!clipped) return null
+    const shapes = subtractToCells(clipped, surface.holes).uncovered.map(rectShape)
+    if (shapes.length === 0) return null
     const offset = new THREE.Matrix4().makeTranslation(
       surface.normal.x * REGION_OFFSET * SCALE,
       surface.normal.y * REGION_OFFSET * SCALE,
       surface.normal.z * REGION_OFFSET * SCALE,
     )
-    return offset.multiply(surfaceMatrix(surface))
-  }, [surface])
+    const geo = new THREE.ShapeGeometry(shapes)
+    geo.applyMatrix4(offset.multiply(surfaceMatrix(surface)))
+    return geo
+  }, [region.rect, surface])
+  useEffect(() => () => geometry?.dispose(), [geometry])
 
-  if (shapes.length === 0) return null
+  if (!geometry) return null
 
   const side =
     dot(cross(surface.u, surface.v), surface.normal) > 0 ? THREE.FrontSide : THREE.BackSide
 
   return (
     <mesh
-      matrix={matrix}
-      matrixAutoUpdate={false}
+      geometry={geometry}
       onClick={onClick}
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
     >
-      <shapeGeometry args={[shapes]} />
       <meshStandardMaterial
         color={tileType.color}
         side={side}
