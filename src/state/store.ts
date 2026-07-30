@@ -1,6 +1,13 @@
 import { create } from 'zustand'
 import { defaultProject } from '../model/defaults'
-import type { Id, Project, RoomDimensions, RoomElement } from '../model/types'
+import type {
+  Id,
+  Project,
+  RoomDimensions,
+  RoomElement,
+  TileRegion,
+  TileType,
+} from '../model/types'
 
 export type Selection = {
   kind: 'element' | 'surface' | 'region' | 'tileType'
@@ -19,6 +26,12 @@ interface StoreState {
   addElement: (element: RoomElement) => void
   updateElement: (id: Id, update: (el: RoomElement) => RoomElement) => void
   removeElement: (id: Id) => void
+  addTileType: (tileType: TileType) => void
+  updateTileType: (id: Id, patch: Partial<TileType>) => void
+  removeTileType: (id: Id) => void
+  addRegion: (region: TileRegion) => void
+  updateRegion: (id: Id, patch: Partial<TileRegion>) => void
+  removeRegion: (id: Id) => void
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -53,5 +66,46 @@ export const useStore = create<StoreState>((set) => ({
       },
       selection:
         s.selection?.kind === 'element' && s.selection.id === id ? null : s.selection,
+    })),
+  addTileType: (tileType) =>
+    set((s) => ({
+      project: { ...s.project, tileTypes: [...s.project.tileTypes, tileType] },
+      selection: { kind: 'tileType', id: tileType.id },
+    })),
+  updateTileType: (id, patch) =>
+    set((s) => ({
+      project: {
+        ...s.project,
+        tileTypes: s.project.tileTypes.map((tt) => (tt.id === id ? { ...tt, ...patch } : tt)),
+      },
+    })),
+  // Kasowanie typu płytki kaskadowo usuwa regiony, które go używają.
+  removeTileType: (id) =>
+    set((s) => ({
+      project: {
+        ...s.project,
+        tileTypes: s.project.tileTypes.filter((tt) => tt.id !== id),
+        regions: s.project.regions.filter((r) => r.tileTypeId !== id),
+      },
+      selection:
+        s.selection?.kind === 'tileType' && s.selection.id === id ? null : s.selection,
+    })),
+  addRegion: (region) =>
+    set((s) => ({
+      project: { ...s.project, regions: [...s.project.regions, region] },
+      selection: { kind: 'region', id: region.id },
+    })),
+  updateRegion: (id, patch) =>
+    set((s) => ({
+      project: {
+        ...s.project,
+        regions: s.project.regions.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+      },
+    })),
+  removeRegion: (id) =>
+    set((s) => ({
+      project: { ...s.project, regions: s.project.regions.filter((r) => r.id !== id) },
+      selection:
+        s.selection?.kind === 'region' && s.selection.id === id ? null : s.selection,
     })),
 }))

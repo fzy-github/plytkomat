@@ -2,9 +2,11 @@ import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { deriveSurfaces, type Surface } from '../geometry/surfaces'
+import type { Surface } from '../geometry/surfaces'
 import type { RoomDimensions } from '../model/types'
+import { getSurfaces } from '../state/selectors'
 import { useStore } from '../state/store'
+import { RegionMesh } from './RegionMesh'
 import { SCALE } from './shapeFromOutline'
 import { SurfaceMesh } from './SurfaceMesh'
 
@@ -15,7 +17,7 @@ const SURFACE_COLORS: Record<string, string> = {
 
 function surfaceColor(s: Surface, selected: boolean, hovered: boolean): string {
   if (selected) return '#6f96ea'
-  if (hovered) return '#8fb0ee'
+  if (hovered) return '#a9bde4'
   if (s.source.type === 'element') return '#9fa6b2'
   return SURFACE_COLORS[s.id] ?? '#b7bdc7'
 }
@@ -50,10 +52,13 @@ export function SceneRoot() {
   const hover = useStore((s) => s.hover)
   const select = useStore((s) => s.select)
   const setHover = useStore((s) => s.setHover)
-  const surfaces = useMemo(() => deriveSurfaces(project), [project])
+  const surfaces = getSurfaces(project)
+  const surfaceById = useMemo(() => new Map(surfaces.map((s) => [s.id, s])), [surfaces])
+  const tileTypeById = useMemo(
+    () => new Map(project.tileTypes.map((tt) => [tt.id, tt])),
+    [project.tileTypes],
+  )
   const room = project.room
-
-  const selectedElementId = selection?.kind === 'element' ? selection.id : null
 
   const target: [number, number, number] = [
     (room.width / 2) * SCALE,
@@ -68,33 +73,58 @@ export function SceneRoot() {
       <directionalLight position={[6, 10, 4]} intensity={1.1} />
       <directionalLight position={[-6, 6, -4]} intensity={0.4} />
       {surfaces.map((s) => {
-        const elementId = s.source.elementId
+        const interactive = s.tileableByDefault
         return (
           <SurfaceMesh
             key={s.id}
             surface={s}
             color={surfaceColor(
               s,
-              elementId !== undefined && elementId === selectedElementId,
-              elementId !== undefined && elementId === hover,
+              selection?.kind === 'surface' && selection.id === s.id,
+              hover === s.id,
             )}
             onClick={
-              elementId
+              interactive
                 ? (e) => {
                     e.stopPropagation()
-                    select({ kind: 'element', id: elementId })
+                    select({ kind: 'surface', id: s.id })
                   }
                 : undefined
             }
             onPointerOver={
-              elementId
+              interactive
                 ? (e) => {
                     e.stopPropagation()
-                    setHover(elementId)
+                    setHover(s.id)
                   }
                 : undefined
             }
-            onPointerOut={elementId ? () => setHover(null) : undefined}
+            onPointerOut={interactive ? () => setHover(null) : undefined}
+          />
+        )
+      })}
+      {project.regions.map((r) => {
+        const surface = surfaceById.get(r.surfaceId)
+        const tileType = tileTypeById.get(r.tileTypeId)
+        // Defensywny filtr sierot: region bez powierzchni/typu nie renderuje się.
+        if (!surface || !tileType) return null
+        return (
+          <RegionMesh
+            key={r.id}
+            region={r}
+            surface={surface}
+            tileType={tileType}
+            selected={selection?.kind === 'region' && selection.id === r.id}
+            hovered={hover === r.id}
+            onClick={(e) => {
+              e.stopPropagation()
+              select({ kind: 'region', id: r.id })
+            }}
+            onPointerOver={(e) => {
+              e.stopPropagation()
+              setHover(r.id)
+            }}
+            onPointerOut={() => setHover(null)}
           />
         )
       })}

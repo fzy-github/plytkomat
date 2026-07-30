@@ -53,6 +53,49 @@
       "bottom": "Bottom"
     }
   },
+  "tiles": {
+    "title": "Tile types",
+    "edit": "Tile type",
+    "add": "Add tile type",
+    "default": "Tile",
+    "empty": "No tile types yet.",
+    "width": "Tile width",
+    "height": "Tile height",
+    "color": "Color",
+    "rotatable": "Rotatable (90°)"
+  },
+  "surface": {
+    "floor": "Floor",
+    "ceiling": "Ceiling",
+    "wall": "Wall"
+  },
+  "face": {
+    "front": "front",
+    "back": "back",
+    "left": "left",
+    "right": "right",
+    "top": "top",
+    "bottom": "bottom"
+  },
+  "surfacePanel": {
+    "title": "Surface",
+    "tileWhole": "Tile whole surface",
+    "addRegion": "Add partial region",
+    "editElement": "Edit element",
+    "needTileType": "Add a tile type first (section below)."
+  },
+  "regions": {
+    "title": "Tile regions",
+    "empty": "No regions yet — click a surface in 3D."
+  },
+  "region": {
+    "title": "Tile region",
+    "tileType": "Tile type",
+    "x": "From left",
+    "y": "From bottom",
+    "width": "Width",
+    "height": "Height"
+  },
   "common": {
     "delete": "Delete"
   }

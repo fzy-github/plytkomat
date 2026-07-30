@@ -1,5 +1,12 @@
 import { newId } from './ids'
-import type { BoxElement, NicheElement, OpeningElement, Project, Settings } from './types'
+import type {
+  BoxElement,
+  NicheElement,
+  OpeningElement,
+  Project,
+  Settings,
+  TileType,
+} from './types'
 
 export const DEFAULT_SETTINGS: Settings = {
   groutWidth: 0.2,
@@ -60,6 +67,20 @@ export function createBox(name: string): BoxElement {
     name,
     pos: { x: 0, y: 0, z: 0 },
     size: { x: 60, y: 120, z: 25 },
+  }
+}
+
+/** Paleta kolorów wizualizacji — kolejne typy płytek dostają kolejne kolory. */
+export const TILE_COLORS = ['#e07a5f', '#3d9970', '#5b8cff', '#f2cc8f', '#9b5de5', '#00b4d8']
+
+export function createTileType(name: string, index: number): TileType {
+  return {
+    id: newId(),
+    name,
+    width: 60,
+    height: 30,
+    color: TILE_COLORS[index % TILE_COLORS.length],
+    rotatable: true,
   }
 }
 

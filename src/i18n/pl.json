@@ -53,6 +53,49 @@
       "bottom": "Spód"
     }
   },
+  "tiles": {
+    "title": "Typy płytek",
+    "edit": "Typ płytki",
+    "add": "Dodaj typ płytki",
+    "default": "Płytka",
+    "empty": "Brak typów płytek.",
+    "width": "Szerokość płytki",
+    "height": "Wysokość płytki",
+    "color": "Kolor",
+    "rotatable": "Można obracać (90°)"
+  },
+  "surface": {
+    "floor": "Podłoga",
+    "ceiling": "Sufit",
+    "wall": "Ściana"
+  },
+  "face": {
+    "front": "przód",
+    "back": "tył",
+    "left": "lewa",
+    "right": "prawa",
+    "top": "góra",
+    "bottom": "dół"
+  },
+  "surfacePanel": {
+    "title": "Powierzchnia",
+    "tileWhole": "Kafelkuj całą powierzchnię",
+    "addRegion": "Dodaj region częściowy",
+    "editElement": "Edytuj element",
+    "needTileType": "Najpierw dodaj typ płytki (sekcja niżej)."
+  },
+  "regions": {
+    "title": "Regiony płytek",
+    "empty": "Brak regionów — kliknij powierzchnię w 3D."
+  },
+  "region": {
+    "title": "Region płytek",
+    "tileType": "Typ płytki",
+    "x": "Od lewej",
+    "y": "Od dołu",
+    "width": "Szerokość",
+    "height": "Wysokość"
+  },
   "common": {
     "delete": "Usuń"
   }

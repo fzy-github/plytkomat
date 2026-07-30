@@ -154,6 +154,43 @@
   color: #d33;
 }
 
+.color-chip {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 3px;
+  margin-right: 0.45rem;
+  vertical-align: -0.08rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.action-button {
+  font: inherit;
+  font-size: 0.88rem;
+  color: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  cursor: pointer;
+  text-align: center;
+}
+
+.action-button:hover {
+  border-color: var(--accent);
+}
+
+.action-button.danger:hover {
+  border-color: #d33;
+  color: #d33;
+}
+
+.field input[type='color'] {
+  width: 3rem;
+  padding: 0.1rem;
+  height: 1.9rem;
+}
+
 .face-toggles {
   display: grid;
   grid-template-columns: 1fr 1fr;
