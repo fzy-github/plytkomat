@@ -8,5 +8,32 @@
     "width": "Width",
     "length": "Length",
     "height": "Height"
+  },
+  "palette": {
+    "add": "Add element",
+    "niche": "Niche",
+    "opening": "Door / window"
+  },
+  "elements": {
+    "title": "Elements",
+    "empty": "No elements yet — add one from the top bar."
+  },
+  "element": {
+    "name": "Name",
+    "wall": "Wall",
+    "x": "From left",
+    "y": "From floor",
+    "width": "Width",
+    "height": "Height",
+    "depth": "Depth"
+  },
+  "walls": {
+    "north": "North",
+    "east": "East",
+    "south": "South",
+    "west": "West"
+  },
+  "common": {
+    "delete": "Delete"
   }
 }

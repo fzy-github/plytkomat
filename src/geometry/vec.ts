@@ -11,6 +11,9 @@ export const add = (a: Vec3, b: Vec3): Vec3 => vec3(a.x + b.x, a.y + b.y, a.z + 
 
 export const scale = (a: Vec3, s: number): Vec3 => vec3(a.x * s, a.y * s, a.z * s)
 
+/** Negacja z normalizacją -0 → 0 (porównania i serializacja bez niespodzianek). */
+export const neg = (a: Vec3): Vec3 => vec3(-a.x || 0, -a.y || 0, -a.z || 0)
+
 export const cross = (a: Vec3, b: Vec3): Vec3 =>
   vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
 

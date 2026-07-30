@@ -1,30 +1,31 @@
 import * as THREE from 'three'
+import { subtractToCells } from '../geometry/rect'
 import type { Surface } from '../geometry/surfaces'
 import type { Rect } from '../model/types'
 
 /** Model trzyma cm; scena three.js pracuje w metrach — pokój ma ~2-3 jednostki. */
 export const SCALE = 0.01
 
-/** Obrys powierzchni (0,0,w,h) z dziurami jako THREE.Shape, już w jednostkach sceny. */
-export function surfaceShape(width: number, height: number, holes: Rect[]): THREE.Shape {
+function rectShape(r: Rect): THREE.Shape {
   const shape = new THREE.Shape()
-  shape.moveTo(0, 0)
-  shape.lineTo(width * SCALE, 0)
-  shape.lineTo(width * SCALE, height * SCALE)
-  shape.lineTo(0, height * SCALE)
+  shape.moveTo(r.x * SCALE, r.y * SCALE)
+  shape.lineTo((r.x + r.w) * SCALE, r.y * SCALE)
+  shape.lineTo((r.x + r.w) * SCALE, (r.y + r.h) * SCALE)
+  shape.lineTo(r.x * SCALE, (r.y + r.h) * SCALE)
   shape.closePath()
-  for (const hole of holes) {
-    const path = new THREE.Path()
-    const x = hole.x * SCALE
-    const y = hole.y * SCALE
-    path.moveTo(x, y)
-    path.lineTo(x + hole.w * SCALE, y)
-    path.lineTo(x + hole.w * SCALE, y + hole.h * SCALE)
-    path.lineTo(x, y + hole.h * SCALE)
-    path.closePath()
-    shape.holes.push(path)
-  }
   return shape
+}
+
+/**
+ * Powierzchnia z dziurami jako zbiór Shape'ów: zamiast dziur w earcut
+ * (który nie wspiera dziur nakładających się ani stykających z obrysem)
+ * renderujemy sumę niezakrytych komórek z kompresji współrzędnych —
+ * dokładnie tę samą dekompozycję, której używa silnik obliczeń.
+ */
+export function surfaceShapes(width: number, height: number, holes: Rect[]): THREE.Shape[] {
+  const outline: Rect = { x: 0, y: 0, w: width, h: height }
+  if (holes.length === 0) return [rectShape(outline)]
+  return subtractToCells(outline, holes).uncovered.map(rectShape)
 }
 
 /**
