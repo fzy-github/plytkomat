@@ -5,6 +5,7 @@ import type {
   Project,
   RoomDimensions,
   RoomElement,
+  Settings,
   TileRegion,
   TileType,
 } from '../model/types'
@@ -26,6 +27,7 @@ interface StoreState {
   toggleResults: () => void
   setProjectName: (name: string) => void
   setRoom: (patch: Partial<RoomDimensions>) => void
+  updateSettings: (patch: Partial<Settings>) => void
   select: (selection: Selection) => void
   setHover: (id: string | null) => void
   addElement: (element: RoomElement) => void
@@ -50,6 +52,10 @@ export const useStore = create<StoreState>((set) => ({
   setProjectName: (name) => set((s) => ({ project: { ...s.project, name } })),
   setRoom: (patch) =>
     set((s) => ({ project: { ...s.project, room: { ...s.project.room, ...patch } } })),
+  updateSettings: (patch) =>
+    set((s) => ({
+      project: { ...s.project, settings: { ...s.project.settings, ...patch } },
+    })),
   select: (selection) => set({ selection }),
   addElement: (element) =>
     set((s) => ({

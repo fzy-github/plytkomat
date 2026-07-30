@@ -327,6 +327,31 @@
   font-weight: 600;
 }
 
+.results-mode {
+  flex-shrink: 0;
+}
+
+.results-row {
+  cursor: pointer;
+}
+
+.results-expand {
+  display: inline-block;
+  width: 1rem;
+  color: var(--muted);
+}
+
+.results-subrow td {
+  font-size: 0.82rem;
+  color: var(--muted);
+  border-top: none;
+  padding-top: 0;
+}
+
+.results-subrow td:first-child {
+  padding-left: 1rem;
+}
+
 .results-warnings {
   margin: 0;
   padding: 0;

@@ -99,8 +99,14 @@
   "results": {
     "title": "Results",
     "empty": "Nothing to calculate yet — tile some surfaces in 3D.",
+    "mode": "Calculation mode",
+    "modeSimple": "Simple",
+    "modeLayout": "Layout",
     "tileType": "Tile type",
     "netArea": "Net area",
+    "fullTiles": "Full",
+    "cuts": "Cuts",
+    "fromOffcuts": "{{count}} from offcuts",
     "tiles": "Pieces",
     "tilesWaste": "With waste ({{waste}}%)",
     "purchase": "To buy",
@@ -116,6 +122,12 @@
     "regionClipped": "A region extends beyond surface {{surface}} — it was clipped to its bounds.",
     "regionsOverlap": "Regions on surface {{surface}} overlap — their areas are counted twice.",
     "elementsOverlap": "Elements “{{a}}” and “{{b}}” intersect — their face areas may be overstated."
+  },
+  "settings": {
+    "title": "Calculation settings",
+    "grout": "Grout",
+    "waste": "Waste",
+    "minOffcut": "Min. offcut"
   },
   "common": {
     "delete": "Delete"

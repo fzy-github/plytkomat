@@ -99,8 +99,14 @@
   "results": {
     "title": "Wyniki",
     "empty": "Brak regionów do policzenia — okafelkuj powierzchnie w 3D.",
+    "mode": "Tryb obliczeń",
+    "modeSimple": "Prosty",
+    "modeLayout": "Układ",
     "tileType": "Typ płytki",
     "netArea": "Netto",
+    "fullTiles": "Pełne",
+    "cuts": "Docinki",
+    "fromOffcuts": "{{count}} ze ścinek",
     "tiles": "Sztuki",
     "tilesWaste": "Z zapasem ({{waste}}%)",
     "purchase": "Do kupienia",
@@ -118,6 +124,12 @@
     "regionClipped": "Region wystaje poza powierzchnię {{surface}} — przycięto go do jej granic.",
     "regionsOverlap": "Regiony na powierzchni {{surface}} nakładają się — ich pola liczą się podwójnie.",
     "elementsOverlap": "Elementy „{{a}}\" i „{{b}}\" przenikają się — pola ich ścianek mogą być zawyżone."
+  },
+  "settings": {
+    "title": "Ustawienia obliczeń",
+    "grout": "Fuga",
+    "waste": "Zapas",
+    "minOffcut": "Min. ścinka"
   },
   "common": {
     "delete": "Usuń"

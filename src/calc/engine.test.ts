@@ -160,3 +160,39 @@ describe('calculateProject — tryb prosty', () => {
     expect(perTileType[0].totalTiles).toBe(14)
   })
 })
+
+describe('calculateProject — tryb układu', () => {
+  it('region 200×100: 12 płytek dokładnie, zapas jako rezerwa → 14 z zapasem 10%', () => {
+    const p = makeProject({ regions: [region('wall:north', { x: 0, y: 0, w: 200, h: 100 })] })
+    const { regions, perTileType } = calculateProject(p, deriveSurfaces(p), 'layout')
+    expect(regions[0].mode).toBe('layout')
+    expect(regions[0].fullTiles).toBe(9)
+    expect(regions[0].cutCells).toBe(7)
+    expect(regions[0].totalTiles).toBe(12)
+    // Rezerwa: ceil(12·1.1) = 14; zakup = 14 · 0.18 m².
+    expect(perTileType[0].tilesWithWaste).toBe(14)
+    expect(perTileType[0].purchaseAreaM2).toBeCloseTo(14 * 0.18, 10)
+  })
+
+  it('dziura powierzchni trafia do symulacji w lokalnych współrzędnych regionu', () => {
+    const p = makeProject({
+      elements: [
+        {
+          id: 'd1',
+          kind: 'opening',
+          name: 'Okno',
+          wall: 'north',
+          rect: { x: 100, y: 50, w: 60, h: 30 },
+        },
+      ],
+      // Region przesunięty: (40,20)..(240,120); dziura w lokalnych (60,30).
+      regions: [region('wall:north', { x: 40, y: 20, w: 200, h: 100 })],
+    })
+    const { regions } = calculateProject(p, deriveSurfaces(p), 'layout')
+    // Netto: 2 m² − 0.18 m² dziury = 1.82 m².
+    expect(regions[0].netAreaM2).toBeCloseTo(1.82, 10)
+    // Dziura 60×30 w (60,30) lokalnie: przykrywa fragmenty komórek → więcej
+    // docinek niż bez dziury; sanity: totalTiles ≥ 9 pełnych bez tej strefy.
+    expect(regions[0].cutCells).toBeGreaterThan(7)
+  })
+})
