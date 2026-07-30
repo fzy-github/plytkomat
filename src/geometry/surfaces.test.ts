@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { defaultProject } from '../model/defaults'
-import type { NicheElement, OpeningElement, Project, RoomElement } from '../model/types'
+import type {
+  BoxElement,
+  NicheElement,
+  OpeningElement,
+  Project,
+  RoomElement,
+} from '../model/types'
 import { deriveSurfaces, type Surface } from './surfaces'
 
 // Pokój 300 (szer., X) × 200 (dł., Z) × 250 (wys., Y) — przybija konwencję
@@ -182,5 +188,111 @@ describe('deriveSurfaces — wnęki', () => {
     expect(back.origin).toEqual({ x: 308, y: 100, z: 50 })
     expect(back.u).toEqual({ x: 0, y: 0, z: 1 })
     expect(back.normal).toEqual({ x: -1, y: 0, z: 0 })
+  })
+})
+
+describe('deriveSurfaces — elementy box i rozwiązywanie kontaktów', () => {
+  it('ścianka działowa 120×250×10 dobita do west: stłumiony koniec, pasek w ścianie, footprint w podłodze', () => {
+    const partition: BoxElement = {
+      id: 'p1',
+      kind: 'partition',
+      name: 'Ścianka',
+      pos: { x: 0, y: 0, z: 60 },
+      size: { x: 120, y: 250, z: 10 },
+    }
+    const p = withElements(partition)
+    const surfaces = deriveSurfaces(p)
+
+    // left (kontakt z west), bottom (podłoga) i top (ścianka na pełną
+    // wysokość dotyka sufitu) stłumione → 3 ścianki.
+    const faces = surfaces.filter((s) => s.id.startsWith('el:p1:')).map((s) => s.id)
+    expect(faces.sort()).toEqual(['el:p1:back', 'el:p1:front', 'el:p1:right'])
+
+    // Pasek 10×250 w ścianie zachodniej: lokalnie u=-Z od (0,0,L), więc x = L - (z+dz).
+    expect(surfaceOf(p, 'wall:west').holes).toEqual([{ x: 200 - 70, y: 0, w: 10, h: 250 }])
+    // Footprint 120×10 w podłodze (u=+X, v=+Z) i odcisk w suficie.
+    expect(surfaceOf(p, 'floor').holes).toEqual([{ x: 0, y: 60, w: 120, h: 10 }])
+    expect(surfaceOf(p, 'ceiling').holes).toEqual([{ x: 0, y: 60, w: 120, h: 10 }])
+
+    // Czołowa ścianka (right, normalna +X) — baza jak ściana west (u=-Z).
+    const right = surfaceOf(p, 'el:p1:right')
+    expect(right.origin).toEqual({ x: 120, y: 0, z: 70 })
+    expect(right.u).toEqual({ x: 0, y: 0, z: -1 })
+    expect(right.normal).toEqual({ x: 1, y: 0, z: 0 })
+    expect(right.width).toBe(10)
+    expect(right.height).toBe(250)
+  })
+
+  it('zabudowa wanny 170×55×60 w narożniku: 2 kontakty ze ścianami + podłoga, top wyłączony → zostają 2 ścianki', () => {
+    const tub: BoxElement = {
+      id: 't1',
+      kind: 'tubEnclosure',
+      name: 'Wanna',
+      pos: { x: 0, y: 0, z: 0 },
+      size: { x: 170, y: 55, z: 60 },
+      faces: { top: false },
+    }
+    const p = withElements(tub)
+    const surfaces = deriveSurfaces(p)
+
+    const faces = surfaces.filter((s) => s.id.startsWith('el:t1:')).map((s) => s.id)
+    expect(faces.sort()).toEqual(['el:t1:front', 'el:t1:right'])
+
+    // Kontakty: north (back 170×55), west (left 60×55), floor (170×60).
+    expect(surfaceOf(p, 'wall:north').holes).toEqual([{ x: 0, y: 0, w: 170, h: 55 }])
+    expect(surfaceOf(p, 'wall:west').holes).toEqual([{ x: 200 - 60, y: 0, w: 60, h: 55 }])
+    expect(surfaceOf(p, 'floor').holes).toEqual([{ x: 0, y: 0, w: 170, h: 60 }])
+
+    // Front zabudowy (normalna +Z): od lewej patrząc z pokoju.
+    const front = surfaceOf(p, 'el:t1:front')
+    expect(front.origin).toEqual({ x: 0, y: 0, z: 60 })
+    expect(front.u).toEqual({ x: 1, y: 0, z: 0 })
+    expect(front.width).toBe(170)
+    expect(front.height).toBe(55)
+  })
+
+  it('murek wolnostojący na środku: 5 ścianek (bottom w podłodze), top emitowany', () => {
+    const box: BoxElement = {
+      id: 'b1',
+      kind: 'box',
+      name: 'Murek',
+      pos: { x: 100, y: 0, z: 80 },
+      size: { x: 60, y: 120, z: 25 },
+      faces: { top: true },
+    }
+    const p = withElements(box)
+    const faces = deriveSurfaces(p)
+      .filter((s) => s.id.startsWith('el:b1:'))
+      .map((s) => s.id)
+    expect(faces.sort()).toEqual([
+      'el:b1:back',
+      'el:b1:front',
+      'el:b1:left',
+      'el:b1:right',
+      'el:b1:top',
+    ])
+    expect(surfaceOf(p, 'floor').holes).toEqual([{ x: 100, y: 80, w: 60, h: 25 }])
+
+    const top = surfaceOf(p, 'el:b1:top')
+    expect(top.origin).toEqual({ x: 100, y: 120, z: 80 })
+    expect(top.normal).toEqual({ x: 0, y: 1, z: 0 })
+    expect(top.width).toBe(60)
+    expect(top.height).toBe(25)
+  })
+
+  it('box sięgający sufitu tłumi top i wybija dziurę w suficie', () => {
+    const column: BoxElement = {
+      id: 'c1',
+      kind: 'box',
+      name: 'Pion',
+      pos: { x: 280, y: 0, z: 0 },
+      size: { x: 20, y: 250, z: 20 },
+    }
+    const p = withElements(column)
+    const faces = deriveSurfaces(p)
+      .filter((s) => s.id.startsWith('el:c1:'))
+      .map((s) => s.id)
+    expect(faces).not.toContain('el:c1:top')
+    expect(surfaceOf(p, 'ceiling').holes).toEqual([{ x: 280, y: 0, w: 20, h: 20 }])
   })
 })

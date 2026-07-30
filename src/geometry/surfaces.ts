@@ -1,6 +1,15 @@
-import type { NicheElement, Project, Rect, RoomDimensions, SurfaceId, WallId } from '../model/types'
-import { clampToBounds } from './rect'
-import { add, neg, scale, vec3, type Vec3 } from './vec'
+import type {
+  BoxElement,
+  BoxFace,
+  NicheElement,
+  Project,
+  Rect,
+  RoomDimensions,
+  SurfaceId,
+  WallId,
+} from '../model/types'
+import { clampToBounds, EPS } from './rect'
+import { add, dot, neg, scale, sub, vec3, type Vec3 } from './vec'
 
 export interface SurfaceSource {
   type: 'room' | 'element'
@@ -168,13 +177,83 @@ function nicheSurfaces(el: NicheElement, rect: Rect, wall: Surface): Surface[] {
   ]
 }
 
+const BOX_FACES: BoxFace[] = ['front', 'back', 'left', 'right', 'top', 'bottom']
+
+/**
+ * Ścianka boxu jako powierzchnia. Konwencja jak dla ścian pokoju: u od lewej
+ * do prawej patrząc na ściankę z zewnątrz boxu, v w górę (dla top/bottom jak
+ * podłoga/sufit: u=+X, v=+Z, normalna jawna).
+ */
+function boxFaceSurface(el: BoxElement, face: BoxFace): Surface {
+  const p = el.pos
+  const s = el.size
+  const mk = (origin: Vec3, u: Vec3, v: Vec3, normal: Vec3, width: number, height: number): Surface => ({
+    id: `el:${el.id}:${face}`,
+    origin, u, v, normal, width, height,
+    holes: [],
+    source: { type: 'element', elementId: el.id, face },
+    tileableByDefault: true,
+  })
+  const up = vec3(0, 1, 0)
+  switch (face) {
+    case 'front':
+      return mk(vec3(p.x, p.y, p.z + s.z), vec3(1, 0, 0), up, vec3(0, 0, 1), s.x, s.y)
+    case 'back':
+      return mk(vec3(p.x + s.x, p.y, p.z), vec3(-1, 0, 0), up, vec3(0, 0, -1), s.x, s.y)
+    case 'left':
+      return mk(vec3(p.x, p.y, p.z), vec3(0, 0, 1), up, vec3(-1, 0, 0), s.z, s.y)
+    case 'right':
+      return mk(vec3(p.x + s.x, p.y, p.z + s.z), vec3(0, 0, -1), up, vec3(1, 0, 0), s.z, s.y)
+    case 'top':
+      return mk(vec3(p.x, p.y + s.y, p.z), vec3(1, 0, 0), vec3(0, 0, 1), vec3(0, 1, 0), s.x, s.z)
+    case 'bottom':
+      return mk(vec3(p.x, p.y, p.z), vec3(1, 0, 0), vec3(0, 0, 1), vec3(0, -1, 0), s.x, s.z)
+  }
+}
+
+const oppositeNormals = (a: Vec3, b: Vec3): boolean =>
+  Math.abs(a.x + b.x) < EPS && Math.abs(a.y + b.y) < EPS && Math.abs(a.z + b.z) < EPS
+
+/**
+ * Rozwiązywanie kontaktu ścianki boxu z powierzchnią pokoju: koplanarna
+ * (± EPS), przeciwna normalna i niepusty rzut → ścianka stłumiona, a rzut
+ * wybity jako dziura w powierzchni pokoju. Zwraca true, gdy kontakt zaszedł.
+ */
+function resolveContact(face: Surface, roomSurfs: Surface[]): boolean {
+  for (const rs of roomSurfs) {
+    if (!oppositeNormals(face.normal, rs.normal)) continue
+    if (Math.abs(dot(sub(face.origin, rs.origin), rs.normal)) > EPS) continue
+    const c1 = face.origin
+    const c2 = add(add(face.origin, scale(face.u, face.width)), scale(face.v, face.height))
+    const x1 = dot(sub(c1, rs.origin), rs.u)
+    const y1 = dot(sub(c1, rs.origin), rs.v)
+    const x2 = dot(sub(c2, rs.origin), rs.u)
+    const y2 = dot(sub(c2, rs.origin), rs.v)
+    const rect: Rect = {
+      x: Math.min(x1, x2),
+      y: Math.min(y1, y2),
+      w: Math.abs(x2 - x1),
+      h: Math.abs(y2 - y1),
+    }
+    const overlap = clampToBounds(rect, rs.width, rs.height)
+    if (!overlap) continue
+    rs.holes.push(overlap)
+    return true
+  }
+  return false
+}
+
 /**
  * Wyprowadza wszystkie płaskie powierzchnie projektu.
  *
  * 1. 6 powierzchni pokoju (sufit tylko do renderu).
  * 2. Otwory (drzwi/okna) → dziury w ścianie-hoście, żadnych nowych powierzchni.
  * 3. Wnęki → dziura w ścianie + 5 powierzchni wnętrza.
- * 4. M3: ścianki boxów z rozwiązywaniem kontaktów.
+ * 4. Boxy → do 6 ścianek; ścianka koplanarna z powierzchnią pokoju i nachodząca
+ *    na nią jest tłumiona, a prostokąt kontaktu wybijany jako dziura (zabudowa
+ *    wanny przy ścianach, footprint na podłodze, ścianka dobita do ściany).
+ *    Kontakt box↔box NIE jest rozwiązywany (bez CSG) — udokumentowane
+ *    ograniczenie; ostrzeżenie o nakładaniu emituje silnik obliczeń.
  *
  * Recty otworów/wnęk są przycinane do granic ściany (edycja wymiarów pokoju
  * nie może wywrócić derywacji). V1: wnęki i otwory tylko na 4 ścianach pokoju;
@@ -182,6 +261,7 @@ function nicheSurfaces(el: NicheElement, rect: Rect, wall: Surface): Surface[] {
  */
 export function deriveSurfaces(project: Project): Surface[] {
   const surfaces = roomSurfaces(project.room)
+  const roomSurfs = [...surfaces]
   const walls = new Map(surfaces.map((s) => [s.id, s]))
 
   for (const el of project.elements) {
@@ -197,6 +277,12 @@ export function deriveSurfaces(project: Project): Surface[] {
       if (!rect) continue
       wall.holes.push(rect)
       surfaces.push(...nicheSurfaces(el, rect, wall))
+    } else {
+      for (const face of BOX_FACES) {
+        if (el.faces?.[face] === false) continue
+        const faceSurface = boxFaceSurface(el, face)
+        if (!resolveContact(faceSurface, roomSurfs)) surfaces.push(faceSurface)
+      }
     }
   }
   return surfaces

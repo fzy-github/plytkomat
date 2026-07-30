@@ -1,5 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import { createNiche, createOpening } from '../model/defaults'
+import {
+  createBox,
+  createNiche,
+  createOpening,
+  createPartition,
+  createTubEnclosure,
+} from '../model/defaults'
 import { useStore } from '../state/store'
 
 export function Toolbar() {
@@ -12,6 +18,9 @@ export function Toolbar() {
   const handleAdd = (kind: string) => {
     if (kind === 'niche') addElement(createNiche(t('palette.niche')))
     else if (kind === 'opening') addElement(createOpening(t('palette.opening')))
+    else if (kind === 'partition') addElement(createPartition(t('palette.partition')))
+    else if (kind === 'tubEnclosure') addElement(createTubEnclosure(t('palette.tubEnclosure')))
+    else if (kind === 'box') addElement(createBox(t('palette.box')))
   }
 
   return (
@@ -32,7 +41,10 @@ export function Toolbar() {
         <option value="" disabled>
           + {t('palette.add')}
         </option>
+        <option value="partition">{t('palette.partition')}</option>
         <option value="niche">{t('palette.niche')}</option>
+        <option value="tubEnclosure">{t('palette.tubEnclosure')}</option>
+        <option value="box">{t('palette.box')}</option>
         <option value="opening">{t('palette.opening')}</option>
       </select>
       <span className="toolbar-spacer" />

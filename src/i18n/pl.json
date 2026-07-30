@@ -12,7 +12,10 @@
   "palette": {
     "add": "Dodaj element",
     "niche": "Wnęka",
-    "opening": "Drzwi / okno"
+    "opening": "Drzwi / okno",
+    "partition": "Ścianka działowa",
+    "tubEnclosure": "Wanna z zabudową",
+    "box": "Zabudowa"
   },
   "elements": {
     "title": "Elementy",
@@ -32,6 +35,23 @@
     "east": "Wschodnia",
     "south": "Południowa",
     "west": "Zachodnia"
+  },
+  "box": {
+    "posX": "Pozycja X",
+    "posZ": "Pozycja Z",
+    "posY": "Nad podłogą (Y)",
+    "sizeX": "Rozmiar X",
+    "sizeZ": "Rozmiar Z",
+    "sizeY": "Wysokość (Y)",
+    "faces": "Ścianki widoczne",
+    "face": {
+      "front": "Przód (+Z)",
+      "back": "Tył (−Z)",
+      "left": "Lewa (−X)",
+      "right": "Prawa (+X)",
+      "top": "Góra",
+      "bottom": "Spód"
+    }
   },
   "common": {
     "delete": "Usuń"

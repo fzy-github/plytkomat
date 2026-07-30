@@ -10,9 +10,12 @@ export type Selection = {
 interface StoreState {
   project: Project
   selection: Selection
+  /** Id elementu pod kursorem w scenie 3D. */
+  hover: string | null
   setProjectName: (name: string) => void
   setRoom: (patch: Partial<RoomDimensions>) => void
   select: (selection: Selection) => void
+  setHover: (id: string | null) => void
   addElement: (element: RoomElement) => void
   updateElement: (id: Id, update: (el: RoomElement) => RoomElement) => void
   removeElement: (id: Id) => void
@@ -21,6 +24,8 @@ interface StoreState {
 export const useStore = create<StoreState>((set) => ({
   project: defaultProject(),
   selection: null,
+  hover: null,
+  setHover: (hover) => set({ hover }),
   setProjectName: (name) => set((s) => ({ project: { ...s.project, name } })),
   setRoom: (patch) =>
     set((s) => ({ project: { ...s.project, room: { ...s.project.room, ...patch } } })),

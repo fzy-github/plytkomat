@@ -154,6 +154,19 @@
   color: #d33;
 }
 
+.face-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+}
+
+.face-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
 .lang-switch {
   display: flex;
   border: 1px solid var(--input-border);
